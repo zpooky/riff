@@ -1,0 +1,5 @@
+riff
+*.o
+*.d
+.ccls-cache
+compile_commands.json
