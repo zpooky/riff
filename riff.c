@@ -68,6 +68,20 @@ read_bytes(const u8 *it, const u8 *end, void *buf, size_t bytes) {
 
   return it + bytes;
 }
+/*
+ * Track Artist (IART)
+ * Album Artist (IAAR)
+ * Composer (ICOM/IMUS)
+ * Title (INAM)
+ * Product (IPRD) - "Album Title"
+ * Album Title (IALB)
+ * Track Number (ITRK)
+ * Date Created (ICRD/IYER) - "year"
+ * Genre (IGNR/IGRE)
+ * Comments (ICMT)
+ * Copyright (ICOP)
+ * Software (ISFT)
+ */
 
 static int
 parse_subchunk_INFO(const u8 *raw, size_t length) {
@@ -83,6 +97,7 @@ parse_subchunk_INFO(const u8 *raw, size_t length) {
     printf("%.*s[\n", (int)sizeof(buf), buf);
     while (remaining_read(it, end)) {
       uint32_t size;
+      int extra = 0;
       if (!(it = read_bytes(it, end, buf, sizeof(buf)))) {
         return EXIT_FAILURE;
       }
@@ -98,11 +113,20 @@ parse_subchunk_INFO(const u8 *raw, size_t length) {
       }
       print_raw((const char *)it, size);
 
+      printf("']");
       it += size;
       while (remaining_read(it, end) > 0 && *it == '\0') {
+        if (!extra) {
+          printf("Extra[");
+        }
+        printf("\\0");
+        extra = 1;
         ++it;
       }
-      printf("']\n");
+      if (extra) {
+        printf("]");
+      }
+      printf("\n");
     } // while
     printf("]");
   } else {
