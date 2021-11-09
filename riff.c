@@ -56,6 +56,7 @@ static size_t
 remaining_read(const u8 *it, const u8 *end) {
   uintptr_t f = (uintptr_t)it;
   uintptr_t s = (uintptr_t)end;
+  assert(f <= s);
   return s - f;
 }
 
@@ -230,13 +231,13 @@ parse_RIFF(const u8 *raw, size_t length) {
     printf("BitsPerSample: %u]\n", bytes2);
   }
 
-  while (remaining_read(it, end)) {
+  while (remaining_read(it, end) > 0) {
     uint32_t size;
     if (!(it = read_bytes(it, end, buf, sizeof(buf)))) {
       return EXIT_FAILURE;
     }
     if (!is_ascii(buf, sizeof(buf))) {
-      printf("'%.*s'\n", 4, buf);
+      printf("'%.*s'\n", (int)sizeof(buf), buf);
       return EXIT_FAILURE;
     }
     if (!(it = read_bytes(it, end, &size, sizeof(size)))) {
